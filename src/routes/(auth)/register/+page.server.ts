@@ -1,6 +1,8 @@
 // +page.server.ts
 import { redirect, type Actions, fail, error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { register } from '$lib/schema/auth';
+import z from 'zod';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (locals.pb.authStore.isValid) {
@@ -15,13 +17,12 @@ export const actions: Actions = {
 		const password = String(formData.get('password') || '');
 		const passwordConfirm = String(formData.get('passwordConfirm') || '');
 
-		if (!email || !password || !passwordConfirm) {
-			return fail(400, { message: 'Email & password are required' });
-		}
-		if (password !== passwordConfirm) {
-			return fail(400, { message: 'Passwords do not match' });
-		}
-
+		  const validated = register.safeParse({email,password,passwordConfirm})
+                if(!validated.success){
+                    const errors = z.treeifyError(validated.error).properties ;
+                    console.log(errors,"error")
+                    return fail(400, { error: errors, data:{email:email,password:password,confirmPassword:passwordConfirm} });
+                }
 		try {
 			// 1) create user in the auth collection
 			const user = await locals.pb.collection('users').create({
