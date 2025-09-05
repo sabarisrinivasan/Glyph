@@ -14,11 +14,11 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const email = String(formData.get('email') || '');
 		const password = String(formData.get('password') || '');
-        const validated = loginSchema.safeParse({email,password})
-		if(!validated.success){
-			const errors = z.treeifyError(validated.error).properties ;
-            console.log(errors,"error")
-            return fail(400, { error: errors, data:{email:email,password:password} });
+		const validated = loginSchema.safeParse({ email, password });
+		if (!validated.success) {
+			const errors = z.treeifyError(validated.error).properties;
+			console.log(errors, 'error');
+			return fail(400, { error: errors, data: { email: email, password: password } });
 		}
 		try {
 			await locals.pb.collection('users').authWithPassword(email, password);

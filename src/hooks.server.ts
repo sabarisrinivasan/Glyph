@@ -19,7 +19,7 @@ const unprotectedPrefix = ['/login', '/register'];
 export const authorization: Handle = async ({ event, resolve }) => {
 	const isUnprotected =
 		unprotectedPrefix.some((p) => event.url.pathname.startsWith(p)) || event.url.pathname === '/';
-
+	console.log(event.locals.pb.authStore.isValid);
 	if (!isUnprotected && !event.locals.pb.authStore.isValid) {
 		throw redirect(303, '/login');
 	}

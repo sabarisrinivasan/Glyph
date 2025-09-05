@@ -13,16 +13,20 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
 	register: async ({ locals, request }) => {
 		const formData = await request.formData();
+		const name = String(formData.get('name') || '');
 		const email = String(formData.get('email') || '');
 		const password = String(formData.get('password') || '');
 		const passwordConfirm = String(formData.get('passwordConfirm') || '');
 
-		  const validated = register.safeParse({email,password,passwordConfirm})
-                if(!validated.success){
-                    const errors = z.treeifyError(validated.error).properties ;
-                    console.log(errors,"error")
-                    return fail(400, { error: errors, data:{email:email,password:password,confirmPassword:passwordConfirm} });
-                }
+		const validated = register.safeParse({ name, email, password, passwordConfirm });
+		if (!validated.success) {
+			const errors = z.treeifyError(validated.error).properties;
+			console.log(errors, 'error');
+			return fail(400, {
+				error: errors,
+				data: { email: email, password: password, confirmPassword: passwordConfirm, name: name }
+			});
+		}
 		try {
 			// 1) create user in the auth collection
 			const user = await locals.pb.collection('users').create({
