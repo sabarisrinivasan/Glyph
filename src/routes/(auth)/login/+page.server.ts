@@ -23,7 +23,6 @@ export const actions: Actions = {
 		try {
 			await locals.pb.collection('users').authWithPassword(email, password);
 		} catch (err) {
-			console.error('Login failed:', err);
 			return fail(400, { message: 'Invalid credentials' });
 		}
 		throw redirect(303, '/');
