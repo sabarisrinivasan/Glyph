@@ -17,27 +17,28 @@ export const register = z
 		password: z
 			.string()
 			.min(1, 'Password is required')
-			.min(8, { message: 'Password must be at least 12 characters' })
+			.min(8, { message: 'Password must be at least 8 characters' })
 			.max(50, { message: 'Maximum characters exceeded' })
 			.trim()
-			.regex(
-				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d^$*.\[\]{}()?\-\"!@#%&\/\\,><':;|_~`+=\s]+$/,
-				{
-					message: 'Password must include a number, uppercase, lowercase and special characters'
-				}
-			),
+			// .regex(
+			// 	/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d^$*.\[\]{}()?\-\"!@#%&\/\\,><':;|_~`+=\s]+$/,
+			// 	{
+			// 		message: 'Password must include a number, uppercase, lowercase and special characters'
+			// 	}
+			// ),
+			,
 		passwordConfirm: z
 			.string()
 			.min(1, 'Password is required')
-			.min(8, { message: 'Password must be at least 12 characters' })
+			.min(8, { message: 'Password must be at least 8 characters' })
 			.max(50, { message: 'Maximum characters exceeded' })
 			.trim()
-			.regex(
-				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d^$*.\[\]{}()?\-\"!@#%&\/\\,><':;|_~`+=\s]+$/,
-				{
-					message: 'Password must include a number, uppercase, lowercase and special characters'
-				}
-			)
+			// .regex(
+			// 	/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d^$*.\[\]{}()?\-\"!@#%&\/\\,><':;|_~`+=\s]+$/,
+			// 	{
+			// 		message: 'Password must include a number, uppercase, lowercase and special characters'
+			// 	}
+			// )
 	})
 	.refine((data) => data.password === data.passwordConfirm, {
 		message: "Password don't match",

@@ -3,9 +3,20 @@
 	import CloudDownload from '$lib/icons/cloud-download.svelte';
 	import PlaceholderIcon from '$lib/icons/placeholder-icon.svelte';
 	import { fade, fly } from 'svelte/transition';
+	type UploadResponse = {
+		success: boolean;
+		recordId: string;
+		links: {
+			filename: string;
+			url: string;
+			short: string;
+		}[];
+	};
 
 	let hover = $state(false);
+	let loading = $state(false);
 	let files = $state<File[]>([]);
+	let imageURL = $state<UploadResponse | undefined>();
 	type Preview = {
 		id: string;
 		file: File;
@@ -94,7 +105,7 @@
 			alert('No files selected');
 			return;
 		}
-
+		loading = true;
 		try {
 			// Create FormData for PocketBase upload
 			const formData = new FormData();
@@ -119,15 +130,16 @@
 				throw new Error('Upload failed');
 			}
 
-			const result = await response.json();
+			const result = (await response.json()) as UploadResponse;
 			console.log('Upload successful:', result);
-
-			// Clear files after successful upload
-			clearAll();
+			imageURL = result; // Clear files after successful upload
+			// clearAll();
 			alert('Files uploaded successfully!');
 		} catch (error) {
 			console.error('Error uploading files:', error);
 			alert('Error uploading files: ' + (error instanceof Error ? error.message : 'Unknown error'));
+		} finally {
+			loading = false;
 		}
 	}
 </script>
@@ -196,5 +208,14 @@
 				</div>
 			</div>
 		{/if}
+			<div>
+				<ul>
+					{#if imageURL}
+						{#each imageURL?.links as item}
+							<li>{item.url}</li>
+						{/each}
+					{/if}
+				</ul>
+			</div>	
 	</div>
 </section>

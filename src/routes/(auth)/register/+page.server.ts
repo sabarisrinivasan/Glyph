@@ -30,6 +30,7 @@ export const actions: Actions = {
 		try {
 			// 1) create user in the auth collection
 			const user = await locals.pb.collection('users').create({
+				name,
 				email,
 				password,
 				passwordConfirm
