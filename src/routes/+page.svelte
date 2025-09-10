@@ -1,7 +1,9 @@
 <script lang="ts">
 	import CloseIcon from '$lib/icons/close-icon.svelte';
 	import CloudDownload from '$lib/icons/cloud-download.svelte';
+	import CopyIcon from '$lib/icons/copy-icon.svelte';
 	import PlaceholderIcon from '$lib/icons/placeholder-icon.svelte';
+	import { toast } from 'svelte-sonner';
 	import { fade, fly } from 'svelte/transition';
 	type UploadResponse = {
 		success: boolean;
@@ -30,6 +32,7 @@
 	let previews = $state<Preview[]>([]);
 	let fileInput: HTMLInputElement | null = null;
 	const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
 	const handleDragEnter = (e: DragEvent) => {
 		e.preventDefault();
 		console.log('drag enter');
@@ -105,22 +108,13 @@
 			alert('No files selected');
 			return;
 		}
-		loading = true;
+
 		try {
-			// Create FormData for PocketBase upload
+			loading = true;
 			const formData = new FormData();
-
-			// Add each file to the FormData
-			// For PocketBase, you typically upload to a specific field name
 			files.forEach((file, index) => {
-				formData.append('documents', file); // 'documents' should match your PocketBase collection field name
+				formData.append('documents', file);
 			});
-
-			// You can add other fields to the record if needed
-			// formData.append('title', 'My Upload');
-			// formData.append('description', 'Uploaded files');
-
-			// Make request to your SvelteKit API endpoint that handles PocketBase upload
 			const response = await fetch('/api/upload', {
 				method: 'POST',
 				body: formData
@@ -132,16 +126,27 @@
 
 			const result = (await response.json()) as UploadResponse;
 			console.log('Upload successful:', result);
-			imageURL = result; // Clear files after successful upload
+			imageURL = result;
 			// clearAll();
-			alert('Files uploaded successfully!');
+			toast.success('Files uploaded successfully!');
 		} catch (error) {
 			console.error('Error uploading files:', error);
-			alert('Error uploading files: ' + (error instanceof Error ? error.message : 'Unknown error'));
+			toast.error(
+				'Error uploading files: ' + (error instanceof Error ? error.message : 'Unknown error')
+			);
 		} finally {
 			loading = false;
 		}
 	}
+
+	const handleCopyLink = async (url: string) => {
+		try {
+			navigator.clipboard.writeText(url);
+			toast.success('copied!');
+		} catch (err) {
+			toast.error('Failed to copy ');
+		}
+	};
 </script>
 
 <section class="flex h-full flex-col items-center justify-center p-5">
@@ -185,37 +190,64 @@
 					<h1>Selected Files {previews.length}</h1>
 					<button class="btn btn-primary" onclick={clearAll}>clear All</button>
 				</div>
-				<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-					{#each previews as preview, index (preview.id)}
-						<div class="h-auto w-full">
-							<div class="relative h-26 w-full" in:fly={{ y: 200, duration: 500 }} out:fade>
-								{#if typeof preview.src === 'string'}
-									<img src={preview.src} alt={preview.name} class="h-full w-full object-cover" />
-								{/if}
-								<button
-									title="remove file"
-									onclick={() => removeFile(index)}
-									class="btn absolute top-0 right-0 btn-error"
-								>
-									<CloseIcon />
-								</button>
-							</div>
-						</div>
-					{/each}
-				</div>
-				<div class="flex justify-end">
-					<button class="btn mt-4 btn-primary" onclick={uploadImage}>Upload</button>
-				</div>
-			</div>
-		{/if}
-			<div>
-				<ul>
+				<div class="relative mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
 					{#if imageURL}
-						{#each imageURL?.links as item}
-							<li>{item.url}</li>
+						{#if loading}
+							<div class="absolute inset-0 flex justify-center">
+								<span class="loading loading-xs loading-bars"></span>
+							</div>
+						{:else}
+							{#each imageURL?.links as item}
+								<div class="h-auto w-full">
+									<div class="relative h-26 w-full" in:fly={{ y: 200, duration: 500 }} out:fade>
+										<a href={item.short}
+											><img
+												src={item.url}
+												alt={item.filename}
+												class="h-full w-full object-cover"
+											/></a
+										>
+										<button
+											class="btn absolute top-0 right-0 btn-primary"
+											onclick={() => handleCopyLink(item.url)}
+										>
+											<CopyIcon />
+										</button>
+									</div>
+								</div>
+							{/each}
+						{/if}
+					{:else}
+						{#each previews as preview, index (preview.id)}
+							<div class="h-auto w-full">
+								<div class="relative h-26 w-full" in:fly={{ y: 200, duration: 500 }} out:fade>
+									{#if typeof preview.src === 'string'}
+										<img src={preview.src} alt={preview.name} class="h-full w-full object-cover" />
+									{/if}
+									<button
+										title="remove file"
+										onclick={() => removeFile(index)}
+										class="btn absolute top-0 right-0 btn-error"
+									>
+										<CloseIcon />
+									</button>
+								</div>
+							</div>
 						{/each}
 					{/if}
-				</ul>
-			</div>	
+				</div>
+				{#if imageURL === undefined}
+					<div class="flex justify-end">
+						<button class="btn mt-4 btn-primary" disabled={loading} onclick={uploadImage}>
+							{#if loading}
+								<span class="loading loading-xs loading-bars"></span>
+							{:else}
+								upload
+							{/if}
+						</button>
+					</div>
+				{/if}
+			</div>
+		{/if}
 	</div>
 </section>

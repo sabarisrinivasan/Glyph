@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '../app.css';
+	import { Toaster } from 'svelte-sonner';
 	import favicon from '$lib/assets/favicon.svg';
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
@@ -11,7 +12,7 @@
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
-
+<Toaster position="top-right" />
 <section>
 	<nav class="flex items-center justify-between border-b px-10 py-6">
 		<div class="font-bold">Flipopay Image host</div>

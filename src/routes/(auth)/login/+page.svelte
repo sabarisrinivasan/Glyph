@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
+	import { toast } from 'svelte-sonner';
 
 	let { form } = $props();
 	let emailError = $derived(form?.error?.email?.errors[0]);
@@ -8,7 +9,11 @@
 	let loading = $state(false);
 	let authError = $derived(form?.message);
 
-
+	$effect(() => {
+		if (authError) {
+			toast.error(authError);
+		}
+	});
 	const handleSubmission: SubmitFunction = () => {
 		loading = true;
 		return async ({ update }) => {
@@ -25,12 +30,6 @@
 		use:enhance={handleSubmission}
 		class="flex w-full max-w-md flex-col gap-9 p-2.5"
 	>
-		{#if authError}
-			<div class="bg-error p-3">
-				<p>{authError}</p>
-			</div>
-		{/if}
-		<div></div>
 		<h1 class="text-2xl font-bold">Login</h1>
 		<div>
 			<label for="email" class="mb-3.5">Email</label>
@@ -58,11 +57,11 @@
 			<span class="text-red-500">{passwordError ?? ''}</span>
 		</div>
 
-		<button class={`btn w-full btn-primary`} disabled={loading} >
+		<button class={`btn w-full btn-primary`} disabled={loading}>
 			{#if loading}
-				<span class="loading loading-bars loading-xs"></span>
-				{:else}
-					Login
+				<span class="loading loading-xs loading-bars"></span>
+			{:else}
+				Login
 			{/if}
 		</button>
 	</form>
