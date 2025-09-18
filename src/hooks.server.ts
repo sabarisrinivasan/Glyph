@@ -16,6 +16,7 @@ export const authentication: Handle = async ({ event, resolve }) => {
 	return response;
 };
 const unprotectedPrefix = ['/login', '/register'];
+
 export const authorization: Handle = async ({ event, resolve }) => {
 	const isUnprotected =
 		unprotectedPrefix.some((p) => event.url.pathname.startsWith(p)) || event.url.pathname === '/';
@@ -26,4 +27,5 @@ export const authorization: Handle = async ({ event, resolve }) => {
 
 	return resolve(event);
 };
+
 export const handle = sequence(authentication, authorization);

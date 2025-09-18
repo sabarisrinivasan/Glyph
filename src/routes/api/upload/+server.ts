@@ -1,10 +1,16 @@
 import { json } from '@sveltejs/kit';
 
-function genSlug(len = 8) {
-	const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	let s = '';
-	for (let i = 0; i < len; i++) s += alphabet[Math.floor(Math.random() * alphabet.length)];
-	return s;
+type ShortLinkRecord = {
+	id: string;
+	slug?: string;
+	target: string;
+	imageDetails?: string;
+};
+
+function getFileName(documents: unknown): string[] {
+	if (!documents) return [];
+	if (Array.isArray(documents)) return documents as string[];
+	return [documents as string];
 }
 
 export async function POST({ request, locals }) {
@@ -17,27 +23,23 @@ export async function POST({ request, locals }) {
 			return json({ success: false, message: 'No files found' }, { status: 400 });
 		}
 
-		// Create the record with the files
+		// Create the images record with the files
 		const record = await locals.pb.collection('images').create({
 			title: 'Uploaded Files',
 			documents: files
 		});
 
-		// PocketBase returns stored filenames (may differ from original names)
-		const filenames: string[] = Array.isArray(record.documents)
-			? record.documents
-			: record.documents
-				? [record.documents]
-				: [];
+		// PocketBase returns stored filenames
+		const filenames: string[] = getFileName(record.documents);
 
-		// Build per-file metadata (index mapping is preserved by PB)
+		// Build per-file metadata
 		const meta = filenames.map((storedName, idx) => {
-			const f = files[idx];
+			const fileData = files[idx];
 			return {
-				storedName, // filename stored in PB
-				originalName: f.name, // original client filename
-				size: f.size, // bytes
-				type: f.type, // MIME
+				storedName,
+				originalName: fileData?.name ?? storedName,
+				size: fileData?.size ?? 0,
+				type: fileData?.type ?? 'application/octet-stream',
 				url: locals.pb.files.getURL(record, storedName)
 			};
 		});
@@ -47,37 +49,32 @@ export async function POST({ request, locals }) {
 			documents_meta: meta
 		});
 
-		// Optional: create short links for each file
-		const results = [];
-		for (let i = 0; i < filenames.length; i++) {
-			const name = filenames[i];
-			const longUrl = locals.pb.files.getURL(updated, name);
-			let slug = genSlug(8);
+		// Prepare short links: use the PocketBase record id as the slug
+		const links = await Promise.all(
+			meta.map(async (m) => {
+				const longUrl = locals.pb.files.getURL(updated, m.storedName);
 
-			for (let t = 0; t < 5; t++) {
-				try {
-					await locals.pb
-						.collection('short_links')
-						.create({ slug, target: longUrl, imageDetails: JSON.stringify(meta[i]) });
-					break;
-				} catch {
-					slug = genSlug(8);
-					if (t === 4) throw new Error('Failed to create short link after retries');
-				}
-			}
+				const created = (await locals.pb.collection('short_links').create({
+					target: longUrl,
+					imageDetails: JSON.stringify(m)
+				})) as ShortLinkRecord;
 
-			results.push({
-				filename: name,
-				url: longUrl,
-				short: slug
-			});
-		}
+				const slug = created.id;
+				await locals.pb.collection('short_links').update(created.id, { slug });
+
+				return {
+					filename: m.storedName,
+					url: longUrl,
+					short: slug
+				};
+			})
+		);
 
 		return json({
 			success: true,
 			recordId: updated.id,
 			files: meta,
-			links: results
+			links
 		});
 	} catch (error) {
 		console.error('Upload error:', error);
