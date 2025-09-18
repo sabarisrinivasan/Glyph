@@ -1,10 +1,16 @@
-// src/routes/[slug]/+page.server.ts
 import { error } from '@sveltejs/kit';
 
 type ShortLink = {
 	id: string;
 	slug: string;
 	target: string;
+	imageDetails: {
+		storedName: string;
+		originalName: string;
+		size: number;
+		type: string;
+		url: string;
+	};
 };
 
 export const load = async ({ params, locals }) => {
@@ -21,6 +27,7 @@ export const load = async ({ params, locals }) => {
 
 	return {
 		slug,
-		target: rec.target
+		target: rec.target,
+		fileData: rec.imageDetails
 	};
 };

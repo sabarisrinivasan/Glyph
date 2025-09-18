@@ -5,6 +5,7 @@
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import FlipopayLogo from '$lib/icons/flipopay-logo.svelte';
 	let { data, children } = $props();
 	let loading = $state(false);
 </script>
@@ -14,8 +15,10 @@
 </svelte:head>
 <Toaster position="top-right" />
 <section>
-	<nav class="flex items-center justify-between border-b px-10 py-6">
-		<div class="font-bold">Flipopay Image host</div>
+	<nav
+		class="sticky top-0 flex items-center justify-between overflow-hidden border-b-2 border-gray-800 bg-black px-10 py-6"
+	>
+		<div class="flex items-center gap-2 font-bold"><FlipopayLogo /><span>Flipopay</span></div>
 		<div class="flex gap-3">
 			{#if data.name}
 				<form
@@ -36,7 +39,7 @@
 						};
 					}}
 				>
-					<button class="btn btn-primary" disabled={loading}>
+					<button class="btn rounded-md btn-primary" disabled={loading}>
 						{#if loading}
 							<span class="loading loading-xs loading-bars"></span>
 						{:else}

@@ -23,7 +23,7 @@
 	};
 </script>
 
-<main class="flex h-[80dvh] items-center justify-center">
+<main class="flex h-[90dvh] items-center justify-center">
 	<form
 		action="?/login"
 		method="POST"
@@ -40,6 +40,8 @@
 				placeholder="email"
 				name="email"
 				id="email"
+				required
+				autocomplete="email"
 			/>
 			<span class="text-red-500">{emailError ?? ''}</span>
 		</div>
@@ -53,6 +55,8 @@
 				name="password"
 				id="password"
 				value={form?.data?.password ?? ''}
+				required
+				autocomplete="current-password"
 			/>
 			<span class="text-red-500">{passwordError ?? ''}</span>
 		</div>

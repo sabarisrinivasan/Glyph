@@ -3,11 +3,21 @@
 	import CloudDownload from '$lib/icons/cloud-download.svelte';
 	import CopyIcon from '$lib/icons/copy-icon.svelte';
 	import PlaceholderIcon from '$lib/icons/placeholder-icon.svelte';
+	import { bytesToSize, handleCopyLink } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import { fade, fly } from 'svelte/transition';
+
+	type meta = {
+		storedName: string;
+		originalName: string;
+		size: number;
+		type: string;
+		url: string;
+	};
 	type UploadResponse = {
 		success: boolean;
 		recordId: string;
+		files: meta[];
 		links: {
 			filename: string;
 			url: string;
@@ -22,7 +32,7 @@
 	type Preview = {
 		id: string;
 		file: File;
-		src: string | typeof PlaceholderIcon;
+		src: string | typeof PlaceholderIcon | undefined;
 		name: string;
 		size: number;
 		type: string;
@@ -60,7 +70,7 @@
 		console.log('drop');
 	};
 
-	const handleFiles = (newFiles: File[]) => {
+	const handleFiles = async (newFiles: File[]) => {
 		files = [...files, ...newFiles];
 		newFiles.forEach((file) => {
 			const reader = new FileReader();
@@ -138,15 +148,6 @@
 			loading = false;
 		}
 	}
-
-	const handleCopyLink = async (url: string) => {
-		try {
-			navigator.clipboard.writeText(url);
-			toast.success('copied!');
-		} catch (err) {
-			toast.error('Failed to copy ');
-		}
-	};
 </script>
 
 <section class="flex h-full flex-col items-center justify-center p-5">
@@ -163,7 +164,7 @@
 			onclick={openFileDialog}
 			tabindex="0"
 			onkeydown={(e) => e.key === 'Enter' && openFileDialog()}
-			class={`flex w-full cursor-pointer justify-center border border-dashed p-14 ${hover ? 'bg-secondary' : ''}`}
+			class={`flex w-full cursor-pointer justify-center rounded-sm border-2 border-dashed border-gray-700 p-14 ${hover ? 'bg-secondary' : ''}`}
 		>
 			<div class="flex flex-col items-center gap-4">
 				<CloudDownload height="50" />
@@ -185,49 +186,63 @@
 			</div>
 		</div>
 		{#if previews.length > 0}
-			<div class="h-auto border border-dashed p-14 md:min-w-2xl lg:max-w-4xl">
+			<div class="h-auto rounded-sm border-2 border-gray-800 p-14 md:min-w-2xl lg:max-w-4xl">
 				<div class="flex items-center justify-between">
 					<h1>Selected Files {previews.length}</h1>
-					<button class="btn btn-primary" onclick={clearAll}>clear All</button>
+					<button class="btn rounded-sm btn-primary" onclick={clearAll}>clear All</button>
 				</div>
-				<div class="relative mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+				<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
 					{#if imageURL}
-						{#if loading}
-							<div class="absolute inset-0 flex justify-center">
-								<span class="loading loading-xs loading-bars"></span>
-							</div>
-						{:else}
+						<div transition:fly={{ y: 200, duration: 500 }}>
 							{#each imageURL?.links as item}
-								<div class="h-auto w-full">
-									<div class="relative h-26 w-full" in:fly={{ y: 200, duration: 500 }} out:fade>
-										<a href={item.short}
-											><img
+								<div class="h-auto w-full rounded-sm border-2 border-gray-800 p-2">
+									<div class="h-26 w-full rounded-sm border border-gray-800">
+										<a href={item.short}>
+											<img
 												src={item.url}
 												alt={item.filename}
-												class="h-full w-full object-cover"
-											/></a
-										>
-										<button
-											class="btn absolute top-0 right-0 btn-primary"
-											onclick={() => handleCopyLink(item.url)}
-										>
+												class="h-full w-full object-contain"
+												loading="lazy"
+											/>
+										</a>
+									</div>
+									<div class="flex w-full items-center justify-between gap-2.5 p-2">
+										<div class="w-[50%]">
+											<h1 class="truncate">{imageURL.files[0].originalName}</h1>
+											<p>{bytesToSize(imageURL.files[0].size)}</p>
+										</div>
+										<button class="btn btn-primary" onclick={() => handleCopyLink(item.url)}>
 											<CopyIcon />
 										</button>
 									</div>
 								</div>
 							{/each}
-						{/if}
+						</div>
 					{:else}
 						{#each previews as preview, index (preview.id)}
-							<div class="h-auto w-full">
-								<div class="relative h-26 w-full" in:fly={{ y: 200, duration: 500 }} out:fade>
+							<div
+								class="h-auto w-full rounded-sm border-2 border-gray-800 p-2"
+								in:fly={{ y: 200, duration: 500 }}
+								out:fade
+							>
+								<div class=" h-26 w-full rounded-sm border border-gray-800">
 									{#if typeof preview.src === 'string'}
-										<img src={preview.src} alt={preview.name} class="h-full w-full object-cover" />
+										<img
+											src={preview.src}
+											alt={preview.name}
+											class="h-full w-full object-contain"
+										/>
 									{/if}
+								</div>
+								<div class="flex w-full items-center justify-between gap-2.5 p-2">
+									<div class="w-[50%]">
+										<h1 class="truncate">{preview.name}</h1>
+										<p>{bytesToSize(preview.size)}</p>
+									</div>
 									<button
 										title="remove file"
 										onclick={() => removeFile(index)}
-										class="btn absolute top-0 right-0 btn-error"
+										class=" cursor-pointer rounded-full bg-red-500 p-2"
 									>
 										<CloseIcon />
 									</button>
@@ -238,7 +253,11 @@
 				</div>
 				{#if imageURL === undefined}
 					<div class="flex justify-end">
-						<button class="btn mt-4 btn-primary" disabled={loading} onclick={uploadImage}>
+						<button
+							class="btn mt-4 rounded-sm btn-primary"
+							disabled={loading}
+							onclick={uploadImage}
+						>
 							{#if loading}
 								<span class="loading loading-xs loading-bars"></span>
 							{:else}
