@@ -5,7 +5,7 @@
 	let nameError = $derived(data?.form?.error?.name?.errors[0]);
 	let emailError = $derived(data?.form?.error?.email?.errors[0]);
 	let passwordError = $derived(data?.form?.error?.password?.errors[0]);
-	let passwordConfirmError = $derived(data?.form?.error?.passwordConfirm?.errors[0]);
+	let passwordConfirmError = $derived(data?.form?.error?.confirmPassword?.errors[0]);
 	let loading = $state(false);
 </script>
 
@@ -69,7 +69,7 @@
 				placeholder="password"
 				name="passwordConfirm"
 				id="passwordConfirm"
-				value={data?.form?.data?.passwordConfirm ?? ''}
+				value={data?.form?.data?.confirmPassword ?? ''}
 			/>
 			<span class="text-red-500">{passwordConfirmError ?? ''}</span>
 		</div>
