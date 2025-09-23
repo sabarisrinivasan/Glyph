@@ -77,7 +77,6 @@ export async function POST({ request, locals }) {
 			links
 		});
 	} catch (error) {
-		console.error('Upload error:', error);
 		return json({ success: false, message: 'Upload failed' }, { status: 500 });
 	}
 }

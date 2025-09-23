@@ -35,7 +35,7 @@
 			<label for="email" class="mb-3.5">Email</label>
 			<input
 				type="email"
-				class={`input w-full ${emailError ? 'input-error' : ''}`}
+				class={`input w-full rounded-sm ${emailError ? 'input-error' : ''}`}
 				value={form?.data?.email ?? ''}
 				placeholder="email"
 				name="email"
@@ -50,7 +50,7 @@
 			<label for="password">Password</label>
 			<input
 				type="password"
-				class={`input w-full ${passwordError ? 'input-error' : ''}`}
+				class={`input w-full rounded-sm ${passwordError ? 'input-error' : ''}`}
 				placeholder="password"
 				name="password"
 				id="password"
@@ -61,7 +61,7 @@
 			<span class="text-red-500">{passwordError ?? ''}</span>
 		</div>
 
-		<button class={`btn w-full btn-primary`} disabled={loading}>
+		<button class={`btn rounded-sm w-full btn-primary`} disabled={loading}>
 			{#if loading}
 				<span class="loading loading-xs loading-bars"></span>
 			{:else}

@@ -63,6 +63,7 @@
 			hidden
 			type="file"
 			bind:this={fileInput}
+			accept="image/png, image/gif, image/jpeg"
 			onchange={(e) => handleFiles(Array.from((e.target as HTMLInputElement).files ?? []))}
 		/>
 	</div>

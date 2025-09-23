@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FileUpload from '$lib/components/file-upload.svelte';
+	import Modal from '$lib/components/modal.svelte';
 	import CloseIcon from '$lib/icons/close-icon.svelte';
 	import CopyIcon from '$lib/icons/copy-icon.svelte';
 	import type { Preview, UploadResponse } from '$lib/type';
@@ -7,6 +8,19 @@
 	import { toast } from 'svelte-sonner';
 	import { fade, fly } from 'svelte/transition';
 
+	// modal states
+	let emojis = ['😥', '☹️', ' 😑', '😊', '😁'];
+	let name = 'emoji';
+	let selected = $state(null);
+	let description = $state('');
+	let showModal = $state(false);
+	const validation = () => {
+		if (selected !== '' && description !== '') {
+			return false;
+		}
+		return true;
+	};
+	// image states
 	let loading = $state(false);
 	let files = $state<File[]>([]);
 	let imageURL = $state<UploadResponse | undefined>();
@@ -68,7 +82,7 @@
 				throw new Error('Upload failed');
 			}
 			const result = (await response.json()) as UploadResponse;
-			console.log('Upload successful:', result);
+			showModal = !showModal;
 			imageURL = result;
 			// clearAll();
 			toast.success('Files uploaded successfully!');
@@ -78,6 +92,31 @@
 			);
 		} finally {
 			loading = false;
+		}
+	};
+
+	//handle feedback api
+	const handleFeedBack = async () => {
+		const data = {
+			emoji: selected,
+			description: description
+		};
+		try {
+			const response = await fetch('/api/feedback', {
+				method: 'POST',
+				body: JSON.stringify(data)
+			});
+			if (!response.ok) {
+				throw new Error('Upload failed');
+			}
+			const result = await response.json();
+			toast.success(result?.message);
+		} catch (error) {
+			toast.error(
+				'Error uploading files: ' + (error instanceof Error ? error.message : 'Unknown error')
+			);
+		} finally {
+			showModal = !showModal;
 		}
 	};
 </script>
@@ -172,4 +211,46 @@
 			</div>
 		{/if}
 	</div>
+	<Modal bind:showModal>
+		{#snippet header()}
+			<h2>Give feed back</h2>
+		{/snippet}
+		<div class="flex flex-col gap-10">
+			<h2>what do you think about image upload experience</h2>
+			<fieldset class="flex w-full justify-between" aria-label="Pick an emoji">
+				{#each emojis as emoji}
+					<label class="cursor-pointer">
+						<input class="peer sr-only" type="radio" {name} value={emoji} bind:group={selected} />
+						<span
+							class="rounded-md border p-2 text-2xl transition
+           peer-checked:border-gray-800 peer-checked:bg-gray-500
+           peer-checked:ring-2 peer-checked:ring-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+						>
+							{emoji}
+						</span>
+					</label>
+				{/each}
+			</fieldset>
+			<div class="flex flex-col gap-4">
+				<p>what are the main reason for rating?</p>
+				<textarea
+					class="textarea w-full"
+					name="description"
+					bind:value={description}
+					id="description"
+				></textarea>
+			</div>
+			<div class="flex items-center justify-end gap-4">
+				<!-- svelte-ignore a11y_autofocus -->
+				<button
+					autofocus
+					onclick={handleFeedBack}
+					disabled={validation()}
+					class="btn mt-3.5 btn-primary"
+				>
+					submit
+				</button>
+			</div>
+		</div>
+	</Modal>
 </section>
