@@ -61,7 +61,7 @@
 			<span class="text-red-500">{passwordError ?? ''}</span>
 		</div>
 
-		<button class={`btn rounded-sm w-full btn-primary`} disabled={loading}>
+		<button class={`btn w-full rounded-sm btn-primary`} disabled={loading}>
 			{#if loading}
 				<span class="loading loading-xs loading-bars"></span>
 			{:else}

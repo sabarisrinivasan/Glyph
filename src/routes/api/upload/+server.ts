@@ -1,13 +1,5 @@
 import { json } from '@sveltejs/kit';
 
-type ShortLinkRecord = {
-	id: string;
-	slug?: string;
-	target: string;
-	imageDetails?: string;
-	user: string;
-};
-
 function getFileName(documents: unknown): string[] {
 	if (!documents) return [];
 	if (Array.isArray(documents)) return documents as string[];
@@ -42,6 +34,8 @@ export async function POST({ request, locals }) {
 				originalName: fileData?.name ?? storedName,
 				size: fileData?.size ?? 0,
 				type: fileData?.type ?? 'application/octet-stream',
+				createdAt: fileData?.lastModified,
+				favorite: true,
 				url: locals.pb.files.getURL(record, storedName)
 			};
 		});
@@ -49,30 +43,35 @@ export async function POST({ request, locals }) {
 		// Persist metadata back to the same record
 		const updated = await locals.pb.collection('images').update(record.id, {
 			documents_meta: meta,
-			user: locals.pb.authStore.record?.id
+			user: locals.pb.authStore.record!.id
 		});
 
 		// Prepare short links: use the PocketBase record id as the slug
-		const links = await Promise.all(
-			meta.map(async (m) => {
-				const longUrl = locals.pb.files.getURL(updated, m.storedName);
+		const links: Array<{ filename: string; url: string; short: string }> = [];
+		for (const m of meta) {
+			const longUrl = locals.pb.files.getURL(updated, m.storedName);
 
-				const created = await locals.pb.collection('short_links').create({
+			// send real JSON to a JSON field; no JSON.stringify needed
+			const created = await locals.pb.collection('short_links').create(
+				{
 					target: longUrl,
-					imageDetails: JSON.stringify(m),
-					user: locals.pb.authStore.record?.id
-				});
+					imageDetails: m,
+					user: locals.pb.authStore.record!.id
+				},
+				{ $autoCancel: false }
+			);
 
-				const slug = created.id;
-				await locals.pb.collection('short_links').update(created.id, { slug });
+			const slug = created.id;
+			await locals.pb
+				.collection('short_links')
+				.update(created.id, { slug }, { $autoCancel: false });
 
-				return {
-					filename: m.storedName,
-					url: longUrl,
-					short: slug
-				};
-			})
-		);
+			links.push({
+				filename: m.storedName,
+				url: longUrl,
+				short: slug
+			});
+		}
 
 		return json({
 			success: true,
@@ -81,7 +80,7 @@ export async function POST({ request, locals }) {
 			links
 		});
 	} catch (error) {
-		console.log(error);
+		console.log(error, 'error');
 		return json({ success: false, message: 'Upload failed' }, { status: 500 });
 	}
 }

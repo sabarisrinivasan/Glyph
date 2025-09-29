@@ -18,7 +18,7 @@
 	<nav
 		class="sticky top-0 flex items-center justify-between overflow-hidden border-b-2 border-gray-800 bg-black px-10 py-6"
 	>
-		<div class="flex items-center gap-2 font-bold"><PicAnchorIcon/><span>Pic-Anchor</span></div>
+		<div class="flex items-center gap-2 font-bold"><PicAnchorIcon /><span>Pic-Anchor</span></div>
 		<div class="flex gap-3">
 			{#if data.name}
 				<form
@@ -48,9 +48,9 @@
 					</button>
 				</form>
 			{:else if page.url.pathname === '/login'}
-				<a href="/register"><button class="btn btn-primary rounded-sm"> Register</button></a>
+				<a href="/register"><button class="btn rounded-sm btn-primary"> Register</button></a>
 			{:else}
-				<a href="/login"><button class="btn btn-primary rounded-sm">Login</button></a>
+				<a href="/login"><button class="btn rounded-sm btn-primary">Login</button></a>
 			{/if}
 		</div>
 	</nav>
