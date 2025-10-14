@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'svelte-sonner';
 
 export function bytesToSize(bytes: number, separator: string = ''): string {
@@ -18,7 +19,31 @@ export const handleCopyLink = async (url: string) => {
 	try {
 		navigator.clipboard.writeText(url);
 		toast.success('copied!');
+		return true;
 	} catch (err) {
 		toast.error('Failed to copy ');
+		return false;
+	}
+};
+
+export function clickOutside(node: Element) {
+	const handleClick = (event: Event) => {
+		if (!node.contains(<Node>event.target)) {
+			node.dispatchEvent(new CustomEvent('outclick'));
+		}
+	};
+
+	document.addEventListener('click', handleClick, true);
+
+	return {
+		destroy() {
+			document.removeEventListener('click', handleClick, true);
+		}
+	};
+}
+
+export const distanceToNow = (data: number) => {
+	if (data) {
+		return formatDistanceToNow(data, { addSuffix: true });
 	}
 };

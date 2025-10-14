@@ -60,13 +60,13 @@
 			/>
 			<span class="text-red-500">{passwordError ?? ''}</span>
 		</div>
-
-		<button class={`btn rounded-sm w-full btn-primary`} disabled={loading}>
+		<button class={`btn w-full rounded-sm btn-primary`} disabled={loading}>
 			{#if loading}
 				<span class="loading loading-xs loading-bars"></span>
 			{:else}
 				Login
 			{/if}
 		</button>
+		   <span class="flex justify-center gap-1.5 text-md">Don't have account <a href="/register" class="link link-primary">Register</a></span>
 	</form>
 </main>

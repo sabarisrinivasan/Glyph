@@ -2,8 +2,9 @@
 	type PropsType = {
 		height?: string;
 		width?: string;
+		class?: string;
 	};
-	let { height = '24', width = '24' }: PropsType = $props();
+	let { height = '24', width = '24', class: className }: PropsType = $props();
 </script>
 
 <svg
@@ -16,8 +17,8 @@
 	stroke-width="2"
 	stroke-linecap="round"
 	stroke-linejoin="round"
-	class="lucide lucide-copy-icon lucide-copy"
-	><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path
-		d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+	class={`${className}lucide lucide-upload-icon lucide-upload`}
+	><path d="M12 3v12" /><path d="m17 8-5-5-5 5" /><path
+		d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
 	/></svg
 >
