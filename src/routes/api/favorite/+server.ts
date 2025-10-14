@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { ImageCollection } from '../../../app.js';
 
 export async function POST({ locals, request }) {
 	try {
@@ -18,7 +17,6 @@ export async function POST({ locals, request }) {
 			record: updateRecord
 		});
 	} catch (e) {
-		console.log(e);
 		return json({
 			error: e,
 			success: false

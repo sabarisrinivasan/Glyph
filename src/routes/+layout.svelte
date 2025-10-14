@@ -4,10 +4,37 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import PicAnchorIcon from '$lib/icons/picAnchor-icon.svelte';
+	import Upload from '$lib/icons/upload.svelte';
+	import Gallery from '$lib/icons/gallery.svelte';
+	import LogOut from '$lib/icons/log-out.svelte';
 	let { data, children } = $props();
 	let loading = $state(false);
+	const currentPath = $derived(page.url.pathname);
+	const shouldShowDock = $derived(
+		data.userIsValid && 
+		currentPath !== '/login' && 
+		currentPath !== '/register'
+	);
+	import { MediaQuery } from 'svelte/reactivity';
+	const large = new MediaQuery('min-width: 800px');
+
+	function handleLogout() {
+		loading = true;
+		return async ({ action }: any) => {
+			const res = await fetch(action, { method: 'POST' });
+			if (res.redirected) {
+				await goto(res.url);
+				invalidateAll();
+			} else if (res.ok) {
+				location.reload();
+			} else {
+				console.error('Logout failed', await res.text());
+			}
+			loading = false;
+		};
+	}
 </script>
 
 <svelte:head>
@@ -16,30 +43,24 @@
 <Toaster position="top-right" />
 <section>
 	<nav
-		class="sticky top-0 flex items-center justify-between overflow-hidden border-b-2 border-gray-800 bg-black px-10 py-6"
+		class="sticky top-0 flex items-center justify-between overflow-hidden border-b-2 border-gray-800 bg-black px-10"
 	>
-		<div class="flex items-center gap-2 font-bold"><PicAnchorIcon /><span>Pic-Anchor</span></div>
-		<div class="flex gap-3">
-			{#if data.name}
-				<form
-					action="/api/logout"
-					method="POST"
-					use:enhance={() => {
-						loading = true;
-						return async ({ action }) => {
-							const res = await fetch(action, { method: 'POST' });
-							if (res.redirected) {
-								await goto(res.url);
-							} else if (res.ok) {
-								location.reload();
-							} else {
-								console.error('Logout failed', await res.text());
-							}
-							loading = false;
-						};
-					}}
-				>
-					<button class="btn rounded-md btn-primary" disabled={loading}>
+		<div class="flex items-center gap-2 p-6 font-bold">
+			<PicAnchorIcon /><span>Pic-Anchor</span>
+		</div>
+		<div class="hidden items-center gap-10 md:flex">
+			{#if data.userIsValid}
+				<ul class="flex gap-5">
+					<a href="/"><li class={`${currentPath === '/' ? 'border-b-2 ' : ''}p-6`}>Upload</li></a>
+					<a href="/gallery"
+						><li class={`${currentPath === '/gallery' ? 'border-b-2 ' : ''}p-6`}>Gallery</li></a
+					>
+				</ul>
+			{/if}
+
+			{#if data.record?.name}
+				<form action="/api/logout" method="POST" use:enhance={handleLogout}>
+					<button type="submit" class="btn rounded-md btn-primary" disabled={loading}>
 						{#if loading}
 							<span class="loading loading-xs loading-bars"></span>
 						{:else}
@@ -47,12 +68,32 @@
 						{/if}
 					</button>
 				</form>
-			{:else if page.url.pathname === '/login'}
-				<a href="/register"><button class="btn rounded-sm btn-primary"> Register</button></a>
-			{:else}
-				<a href="/login"><button class="btn rounded-sm btn-primary">Login</button></a>
 			{/if}
 		</div>
 	</nav>
 	{@render children?.()}
+	{#if shouldShowDock && !large.current}
+		<div class="dock border-t-2 border-gray-800">
+			<a href="/" class={`${currentPath === '/' ? 'dock-active' : ''}`}>
+				<Upload class="size-[1.2em]" />
+				<span class="dock-label">Upload</span>
+			</a>
+
+			<a href="/gallery" class={`${currentPath === '/gallery' ? 'dock-active' : ''}`}>
+				<Gallery class="size-[1.2em]" />
+				<span class="dock-label">Gallery</span>
+			</a>
+
+			<form action="/api/logout" method="POST" use:enhance={handleLogout}>
+				<button type="submit" disabled={loading}>
+					{#if loading}
+						<span class="loading loading-xs loading-bars"></span>
+					{:else}
+						<LogOut class="size-[1.2em]" />
+						<span class="dock-label">Logout</span>
+					{/if}
+				</button>
+			</form>
+		</div>
+	{/if}
 </section>

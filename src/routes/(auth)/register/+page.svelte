@@ -80,5 +80,6 @@
 				Register
 			{/if}
 		</button>
+		   <span class="flex justify-center gap-1.5 text-md">Already have an account <a href="/login" class="link link-primary">Login</a></span>
 	</form>
 </main>

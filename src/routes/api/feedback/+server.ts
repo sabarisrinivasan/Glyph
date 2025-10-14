@@ -10,7 +10,8 @@ export const POST = async ({ request, locals }) => {
 		const record = await locals.pb.collection('feedback').create({
 			title: 'feedback',
 			description: data.description,
-			reactions: data.emoji
+			reactions: data.emoji,
+			user: locals.pb.authStore.record?.id
 		});
 
 		return json({

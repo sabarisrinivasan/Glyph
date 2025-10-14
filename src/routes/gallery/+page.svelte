@@ -9,6 +9,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import type { ImageUrlCollection } from '../../app.js';
 	import { invalidate } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	let { data } = $props();
 	let imageData = $state(data.images);
@@ -29,7 +30,9 @@
 				body: JSON.stringify({ id: item.id })
 			});
 			const { success, record } = await res.json();
-
+			if (!success) {
+				toast.error('something went wrong');
+			}
 			imageData.map((d) => {
 				d.id === item.id ? { ...d, imageData: record.imageDetails } : d;
 			});
@@ -63,6 +66,8 @@
 			console.error('Download error:', err);
 		}
 	}
+
+	
 </script>
 
 <section class="h-[calc(100vh-90px)] w-full overflow-y-auto p-5">
@@ -72,22 +77,24 @@
 	>
 		{#each imageData as item, i}
 			<div
-				class="flex h-80 w-full scale-100 flex-col gap-2 rounded-sm border-2 border-gray-800 p-2 transition-transform duration-300 ease-in-out hover:scale-110"
+				class="flex h-80 w-full scale-100 flex-col gap-2 rounded-sm border-2 border-gray-800 p-2 transition-transform duration-300 ease-in-out hover:scale-110 bg-black"
 				in:fly={{ y: 200, duration: 500 }}
 				out:fade
 			>
 				<div class="relative h-50 w-full rounded-sm border-2 border-gray-800 p-1">
 					<button
-						class="absolute top-2 right-2 rounded-full bg-primary p-1.5 active:scale-90"
+						class="absolute top-2 right-2 cursor-pointer rounded-full bg-primary p-1.5 active:scale-90"
 						onclick={() => handleToggle(item)}
 					>
 						<HeartIcon class={`${item.imageDetails.favorite ? 'fill-red-500 stroke-0' : ''}`} />
 					</button>
-					<img
-						src={item.imageDetails.url}
-						alt={item.imageDetails.storedName}
-						class="h-full w-full rounded-sm object-contain hover:bg-gray-900"
-					/>
+					<a href={item.slug}>
+						<img
+							src={item.imageDetails.url}
+							alt={item.imageDetails.storedName}
+							class="h-full w-full rounded-sm object-contain hover:bg-gray-900"
+						/>
+					</a>
 				</div>
 				<div class="gap flex w-full justify-between p-2">
 					<div class="flex w-[50%] flex-col">
@@ -105,12 +112,12 @@
 							{/snippet}
 						</CopyClipboard>
 						<button
-							class="rounded-full bg-primary p-1.5 active:scale-90"
+							class=" cursor-pointer rounded-full bg-primary p-1.5 active:scale-90"
 							onclick={() => downloadFile(item)}
 						>
 							<DownloadIcon />
 						</button>
-						<button class="rounded-full bg-primary p-1.5 active:scale-90">
+						<button class="cursor-pointer rounded-full bg-primary p-1.5 active:scale-90">
 							<DotIcon />
 						</button>
 					</div>
@@ -118,4 +125,6 @@
 			</div>
 		{/each}
 	</div>
+
+	
 </section>
