@@ -35,7 +35,7 @@ export async function POST({ request, locals }) {
 				size: fileData?.size ?? 0,
 				type: fileData?.type ?? 'application/octet-stream',
 				createdAt: fileData?.lastModified,
-				favorite: false,
+				favorite: true,
 				url: locals.pb.files.getURL(record, storedName)
 			};
 		});

@@ -3,9 +3,8 @@
 		height?: string;
 		width?: string;
 	};
-	let { height = '24', width = '24' }: PropsType = $props();
+	let { height = '24', width = '24',  }: PropsType = $props();
 </script>
-
 <svg
 	xmlns="http://www.w3.org/2000/svg"
 	width={height}

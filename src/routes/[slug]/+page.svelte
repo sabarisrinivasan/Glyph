@@ -17,11 +17,6 @@
 	console.log(data.target);
 </script>
 
-<svelte:head>
-	<title>Image Details - GLYPH</title>
-	<meta name="description" content="View details of your uploaded image on GLYPH." />
-</svelte:head>
-
 <section class="h-[calc(100vh-90px)] p-6">
 	<!-- Grid: 2 cols; rows = main area + recents strip -->
 	<div class="grid h-full grid-cols-1 gap-4 lg:grid-cols-[auto_500px]">

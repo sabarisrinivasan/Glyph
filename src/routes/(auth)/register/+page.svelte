@@ -9,13 +9,6 @@
 	let loading = $state(false);
 </script>
 
-<svelte:head>
-	<title>Register - GLYPH</title>
-	<meta
-		name="description"
-		content="Register for a GLYPH account to start uploading and managing your images."
-	/>
-</svelte:head>
 <main class="flex h-[80dvh] items-center justify-center">
 	<form
 		action="?/register"
@@ -80,15 +73,13 @@
 			/>
 			<span class="text-red-500">{passwordConfirmError ?? ''}</span>
 		</div>
-		<button class="btn w-full rounded-sm btn-primary" disabled={loading}>
+		<button class="btn w-full btn-primary" disabled={loading}>
 			{#if loading}
 				<span class="loading loading-xs loading-bars"></span>
 			{:else}
 				Register
 			{/if}
 		</button>
-		<span class="text-md flex justify-center gap-1.5"
-			>Already have an account ? <a href="/login" class="link link-primary">Login</a></span
-		>
+		   <span class="flex justify-center gap-1.5 text-md">Already have an account <a href="/login" class="link link-primary">Login</a></span>
 	</form>
 </main>

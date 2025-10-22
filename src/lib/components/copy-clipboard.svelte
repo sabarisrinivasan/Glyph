@@ -28,11 +28,7 @@
 	}
 </script>
 
-<button
-	onclick={copy}
-	class="cursor-pointer rounded-full bg-primary p-1.5 active:scale-90"
-	type="button"
->
+<button onclick={copy} class="cursor-pointer rounded-full bg-primary p-1.5 active:scale-90" type="button">
 	{#if copied}
 		{@render copyIcon()}
 	{:else}

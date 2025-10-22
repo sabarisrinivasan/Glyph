@@ -1,24 +1,23 @@
 <script lang="ts">
 	import '../app.css';
 	import { Toaster } from 'svelte-sonner';
-	import favicon from '$lib/assets/favicon.png';
+	import favicon from '$lib/assets/favicon.svg';
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
+	import PicAnchorIcon from '$lib/icons/picAnchor-icon.svelte';
 	import Upload from '$lib/icons/upload.svelte';
 	import Gallery from '$lib/icons/gallery.svelte';
 	import LogOut from '$lib/icons/log-out.svelte';
-	import { MediaQuery } from 'svelte/reactivity';
-	import Logo from '$lib/images/logo.png';
-	import GitLogo from '$lib/icons/git-logo.svelte';
-
 	let { data, children } = $props();
 	let loading = $state(false);
 	const currentPath = $derived(page.url.pathname);
 	const shouldShowDock = $derived(
-		data.userIsValid && currentPath !== '/login' && currentPath !== '/register'
+		data.userIsValid && 
+		currentPath !== '/login' && 
+		currentPath !== '/register'
 	);
-
+	import { MediaQuery } from 'svelte/reactivity';
 	const large = new MediaQuery('min-width: 800px');
 
 	function handleLogout() {
@@ -39,19 +38,15 @@
 </script>
 
 <svelte:head>
-	<title>GLYPH - Image Hosting</title>
-	<meta name="description" content="Upload and manage your images with GLYPH." />
 	<link rel="icon" href={favicon} />
 </svelte:head>
 <Toaster position="top-right" />
-
 <section>
 	<nav
 		class="sticky top-0 flex items-center justify-between overflow-hidden border-b-2 border-gray-800 bg-black px-10"
 	>
 		<div class="flex items-center gap-2 p-6 font-bold">
-			<img src={Logo} alt="logo" class="h-6 w-6 object-contain" />
-			<span>GLYPH</span>
+			<PicAnchorIcon /><span>Pic-Anchor</span>
 		</div>
 		<div class="hidden items-center gap-10 md:flex">
 			{#if data.userIsValid}
@@ -62,11 +57,7 @@
 					>
 				</ul>
 			{/if}
-			<div>
-				<a href="https://github.com/sabarisrinivasan/Glyph" title="facing any issues?">
-					<GitLogo /></a
-				>
-			</div>
+
 			{#if data.record?.name}
 				<form action="/api/logout" method="POST" use:enhance={handleLogout}>
 					<button type="submit" class="btn rounded-md btn-primary" disabled={loading}>
