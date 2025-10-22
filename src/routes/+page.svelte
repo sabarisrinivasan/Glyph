@@ -38,15 +38,7 @@
 		previews = [...previews, ...holdingFiles];
 	};
 
-	//clear all image
-	// function clearAll() {
-	// 	previews.forEach((pre) => URL.revokeObjectURL(pre.src));
-	// 	files = [];
-	// 	previews = [];
-	// 	if (fileInput) fileInput.value = '';
-	// }
-
-	// remove file
+// remove file from preview and files array
 	function removeFile(index: number) {
 		const pre = previews[index];
 		if (pre && typeof pre.src === 'string') URL.revokeObjectURL(pre.src);
