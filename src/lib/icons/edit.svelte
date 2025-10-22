@@ -17,14 +17,8 @@
 	stroke-width="2"
 	stroke-linecap="round"
 	stroke-linejoin="round"
-	class={`${className} lucide lucide-images-icon lucide-images`}
-	><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /><path
-		d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2"
-	/><circle cx="13" cy="7" r="1" fill="currentColor" /><rect
-		x="8"
-		y="2"
-		width="14"
-		height="14"
-		rx="2"
-	/></svg
+	class={`${className} lucide lucide-pencil-icon lucide-pencil`}
+	><path
+		d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+	/><path d="m15 5 4 4" /></svg
 >
