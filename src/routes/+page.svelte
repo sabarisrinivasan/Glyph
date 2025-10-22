@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { goto, onNavigate } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import FileUpload from '$lib/components/file-upload.svelte';
-	import Modal from '$lib/components/modal.svelte';
 	import CloseIcon from '$lib/icons/close-icon.svelte';
 	import type { Preview, UploadResponse } from '$lib/type';
 	import { bytesToSize } from '$lib/utils';
@@ -9,7 +8,6 @@
 	import { fade, fly } from 'svelte/transition';
 
 	// modal states
-	
 
 	// image states
 	let loading = $state(false);
@@ -40,15 +38,7 @@
 		previews = [...previews, ...holdingFiles];
 	};
 
-	//clear all image
-	// function clearAll() {
-	// 	previews.forEach((pre) => URL.revokeObjectURL(pre.src));
-	// 	files = [];
-	// 	previews = [];
-	// 	if (fileInput) fileInput.value = '';
-	// }
-
-	// remove file
+// remove file from preview and files array
 	function removeFile(index: number) {
 		const pre = previews[index];
 		if (pre && typeof pre.src === 'string') URL.revokeObjectURL(pre.src);
@@ -84,10 +74,12 @@
 			goto('/gallery');
 		}
 	};
-
-	
 </script>
 
+<svelte:head>
+	<title>Upload Image - GLYPH</title>
+	<meta name="description" content="Upload your images easily and quickly with GLYPH." />
+</svelte:head>
 <section class="flex h-full w-full flex-col items-center p-5">
 	<div class="mx-auto flex h-full min-w-xs flex-col gap-4 p-1.5 md:min-w-2xl lg:min-w-4xl">
 		<h1 class="text-2xl font-bold">Upload image</h1>
@@ -140,5 +132,4 @@
 	</div>
 
 	<!-- modal component -->
-	
 </section>
