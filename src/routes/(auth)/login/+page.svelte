@@ -23,7 +23,11 @@
 	};
 </script>
 
-<main class="flex h-[90dvh] items-center justify-center">
+<svelte:head>
+	<title>Login - GLYPH</title>
+	<meta name="description" content="Login to your GLYPH account to manage and upload images." />
+</svelte:head>
+<main class="flex h-[90dvh] items-center justify-center p-5">
 	<form
 		action="?/login"
 		method="POST"
@@ -67,6 +71,8 @@
 				Login
 			{/if}
 		</button>
-		   <span class="flex justify-center gap-1.5 text-md">Don't have account <a href="/register" class="link link-primary">Register</a></span>
+		<span class="text-md flex justify-center gap-1.5"
+			>Don't have account? <a href="/register" class="link link-primary">Register</a></span
+		>
 	</form>
 </main>
