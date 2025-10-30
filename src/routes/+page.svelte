@@ -38,7 +38,7 @@
 		previews = [...previews, ...holdingFiles];
 	};
 
-	// remove file from preview and files array
+// remove file from preview and files array
 	function removeFile(index: number) {
 		const pre = previews[index];
 		if (pre && typeof pre.src === 'string') URL.revokeObjectURL(pre.src);
