@@ -47,3 +47,15 @@ export const distanceToNow = (data: number) => {
 		return formatDistanceToNow(data, { addSuffix: true });
 	}
 };
+export function getOS(): string {
+	const platform = navigator.userAgent;
+	let osName = 'Unknown OS';
+	if (platform.includes('Win')) {
+		osName = 'Windows';
+	} else if (platform.includes('Mac')) {
+		osName = 'MacOS';
+	} else if (platform.includes('X11') || platform.includes('Linux')) {
+		osName = 'Linux';
+	}
+	return osName;
+}
