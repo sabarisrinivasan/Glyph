@@ -1,20 +1,37 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import CopyIcon from '$lib/icons/copy-icon.svelte';
-	import Tick from '$lib/icons/tick.svelte';
 	import { bytesToSize, handleCopyLink } from '$lib/utils';
 
-	export let data: {
+	type FileData = {
+		storedName: string;
+		originalName: string;
+		size: number;
+		type: string;
+		url: string;
+	};
+
+	type Props = {
 		slug: string;
 		target: string;
-		fileData: {
-			storedName: string;
-			originalName: string;
-			size: number;
-			type: string;
-			url: string;
-		};
+		fileData: FileData;
 	};
-	console.log(data.target);
+
+	let { data }: { data: Props } = $props();
+
+
+	let dimensions = $state<string>('Loading...');
+
+	onMount(() => {
+		const img = new Image();
+		img.onload = () => {
+			dimensions = `${img.naturalWidth} × ${img.naturalHeight}px`;
+		};
+		img.onerror = () => {
+			dimensions = 'Unknown';
+		};
+		img.src = data.target;
+	});
 </script>
 
 <svelte:head>
@@ -54,7 +71,7 @@
 				</div>
 				<div class="flex items-center justify-between">
 					<span class="text-neutral-500">Dimensions</span>
-					<span>Auto-detected</span>
+					<span>{dimensions}</span>
 				</div>
 				<div class="flex items-center justify-between">
 					<span class="text-neutral-500">Size</span>

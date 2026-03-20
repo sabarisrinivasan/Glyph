@@ -163,21 +163,21 @@
 			if (pending.has(item.id)) return;
 			pending.add(item.id);
 			imageData = imageData.map((d) =>
-				d.id === item.id
-					? {
-							...d,
-							imageDetails: {
-								...d.imageDetails,
-								storedName: inputRef?.value ?? d.imageDetails.storedName
-							}
-						}
-					: d
+			d.id === item.id
+			? {
+			...d,
+			imageDetails: {
+			...d.imageDetails,
+			originalName: inputRef?.value ?? d.imageDetails.originalName
+			}
+			}
+			: d
 			);
 			try {
 				const res = await fetch('/api/rename', {
-					method: 'POST',
-					headers: { 'content-type': 'application/json' },
-					body: JSON.stringify({ id: item.id, storedName: inputRef?.value })
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ id: item.id, name: inputRef?.value })
 				});
 				const { success, record } = await res.json();
 				if (!success) {

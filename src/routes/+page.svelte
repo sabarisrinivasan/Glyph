@@ -51,7 +51,7 @@
 		try {
 			loading = true;
 			const formData = new FormData();
-			files.forEach((file, index) => {
+			files.forEach((file) => {
 				formData.append('documents', file);
 			});
 			const response = await fetch('/api/upload', {
@@ -60,18 +60,19 @@
 			});
 
 			if (!response.ok) {
-				throw new Error('Upload failed');
+				const err = await response.json().catch(() => ({}));
+				throw new Error(err.message ?? 'Upload failed');
 			}
 			const result = (await response.json()) as UploadResponse;
 			imageURL = result;
 			toast.success('Files uploaded successfully!');
+			goto('/gallery');
 		} catch (error) {
 			toast.error(
 				'Error uploading files: ' + (error instanceof Error ? error.message : 'Unknown error')
 			);
 		} finally {
 			loading = false;
-			goto('/gallery');
 		}
 	};
 </script>

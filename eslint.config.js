@@ -1,4 +1,19 @@
-import prettier from 'eslint-config-prettier';
-import svelte from 'eslint-plugin-svelte';
 
-export default [prettier, ...svelte.configs.prettier];
+
+// eslint.config.js
+import svelte from 'eslint-plugin-svelte';
+import svelteParser from 'svelte-eslint-parser';
+import tsParser from '@typescript-eslint/parser';
+
+export default [
+  {
+    files: ['**/*.svelte'],
+    plugins: { svelte },
+    languageOptions: {
+      parser: svelteParser,
+      parserOptions: {
+        parser: tsParser, // handles the <script lang="ts"> block
+      },
+    },
+  },
+];

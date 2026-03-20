@@ -1,5 +1,9 @@
 import { json } from '@sveltejs/kit';
 
+const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILES = 20;
+
 function getFileName(documents: unknown): string[] {
 	if (!documents) return [];
 	if (Array.isArray(documents)) return documents as string[];
@@ -7,6 +11,11 @@ function getFileName(documents: unknown): string[] {
 }
 
 export async function POST({ request, locals }) {
+	// Must be authenticated
+	if (!locals.pb.authStore.isValid) {
+		return json({ success: false, message: 'Unauthorized' }, { status: 401 });
+	}
+
 	try {
 		const formData = await request.formData();
 
@@ -14,6 +23,26 @@ export async function POST({ request, locals }) {
 		const files = formData.getAll('documents').filter((f) => f instanceof File) as File[];
 		if (files.length === 0) {
 			return json({ success: false, message: 'No files found' }, { status: 400 });
+		}
+
+		if (files.length > MAX_FILES) {
+			return json({ success: false, message: `Max ${MAX_FILES} files per upload` }, { status: 400 });
+		}
+
+		// Server-side type and size validation
+		for (const file of files) {
+			if (!ALLOWED_TYPES.has(file.type)) {
+				return json(
+					{ success: false, message: `File type not allowed: ${file.type}. Use JPEG, PNG, GIF or WebP.` },
+					{ status: 400 }
+				);
+			}
+			if (file.size > MAX_FILE_SIZE) {
+				return json(
+					{ success: false, message: `File too large: ${file.name}. Max size is 10 MB.` },
+					{ status: 400 }
+				);
+			}
 		}
 
 		// Create the images record with the files
